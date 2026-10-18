@@ -150,7 +150,7 @@ function studentDetail(){
 function payForm(s){
   var sel2=s?'<input type="hidden" id="ps" value="'+s.id+'">':'<label>Öğrenci</label><select id="ps">'+S.students.map(function(x){return '<option value="'+x.id+'">'+esc(x.name)+'</option>'}).join("")+'</select>';
   if(!S.students.length)return"";
-  return '<div class="card"><h2>Ödeme al</h2>'+sel2+'<div class="fl"><div><label>Tutar (₺)</label><input id="pa" type="number" inputmode="decimal"></div><div><label>Tarih</label><input id="pd" type="date" value="'+today()+'"></div></div><label>Not (nakit, havale...)</label><input id="pn"><button class="btn" data-a="addPay">Ödemeyi kaydet</button></div>';
+  return '<details class="card"><summary style="cursor:pointer;font-weight:600">+ Ödeme al</summary><div style="height:10px"></div>'+sel2+'<div class="fl"><div><label>Tutar (₺)</label><input id="pa" type="number" inputmode="decimal"></div><div><label>Tarih</label><input id="pd" type="date" value="'+today()+'"></div></div><label>Not (nakit, havale...)</label><input id="pn"><button class="btn" data-a="addPay">Ödemeyi kaydet</button></details>';
 }
 function payList(list,showName){
   if(!list.length)return"";
