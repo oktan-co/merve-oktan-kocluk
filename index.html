@@ -72,6 +72,8 @@ function setRange(r){var n=new Date(),y=n.getFullYear(),m=n.getMonth();
   else{F.from="";F.to=""}}
 setRange("month");
 
+var PAYO=false;
+document.addEventListener("toggle",function(e){if(e.target&&e.target.id=="payd")PAYO=e.target.open},true);
 var KEYS=["students","sessions","payments","plans","exc"];
 var fbAuth=null,db=null,USER=null,last={},pend={},got={},ready=false,shown=false,dirty=false,tm=null,unsubs=[];
 KEYS.forEach(function(k){last[k]={}});
@@ -154,9 +156,9 @@ function payForm(s){
 }
 function payList(list,showName){
   if(!list.length)return"";
-  return '<h2>Alınan ödemeler</h2>'+list.slice().sort(function(a,b){return a.date<b.date?1:-1}).map(function(p){
+  return '<details id="payd" class="card"'+(PAYO?' open':'')+'><summary style="cursor:pointer;font-weight:600">Alınan ödemeler ('+list.length+')</summary><div style="height:10px"></div>'+list.slice().sort(function(a,b){return a.date<b.date?1:-1}).map(function(p){
     if(ED==p.id)return editPay(p);return '<div class="card"><div class="row"><span><b>'+(showName?esc(sname(p.studentId))+' · ':"")+fd(p.date)+'</b> <span class="mut">'+esc(p.note||"")+'</span></span><span><b>'+tl(p.amount)+'</b> <button class="btn g s" data-a="edit" data-id="'+p.id+'">Düzenle</button> <button class="btn g s" data-a="delPay" data-id="'+p.id+'">Sil</button></span></div></div>';
-  }).join("");
+  }).join("")+'</details>';
 }
 function sessionForm(s){
   if(!S.students.length)return '<p class="mut">Önce "Öğrenciler" sekmesinden öğrenci ekle.</p>';
