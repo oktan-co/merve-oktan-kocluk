@@ -142,8 +142,9 @@ function studentList(){
   var act=S.students.filter(function(s){return s.active!==false}),pas=S.students.filter(function(s){return s.active===false});
   function card(s){var n=S.sessions.filter(function(x){return x.studentId==s.id}).length;
     return '<div class="card" data-a="open" data-id="'+s.id+'" style="cursor:pointer"><div class="row"><div><b>'+esc(s.name)+'</b><div class="mut">'+n+' seans yapıldı</div></div><div><button class="btn g s" data-a="open" data-id="'+s.id+'">Aç</button></div></div></div>'}
-  h+=act.length?act.map(card).join(""):'<p class="mut">Aktif öğrenci yok.</p>';
-  if(pas.length)h+='<details id="pasd" class="card"'+(PASO?' open':'')+'><summary style="cursor:pointer;font-weight:600">Pasif öğrenciler ('+pas.length+')</summary><div style="height:10px"></div>'+pas.map(card).join("")+'</details>';
+  h+='<select id="svs" style="font-weight:600;font-size:17px"><option value="a"'+(SV!="p"?' selected':'')+'>Aktif öğrenciler ('+act.length+')</option><option value="p"'+(SV=="p"?' selected':'')+'>Pasif öğrenciler ('+pas.length+')</option></select>';
+  var lst=SV=="p"?pas:act;
+  h+=lst.length?lst.map(card).join(""):'<p class="mut">'+(SV=="p"?"Pasif öğrenci yok.":"Aktif öğrenci yok.")+'</p>';
   return h;
 }
 function studentDetail(){
@@ -298,6 +299,7 @@ document.addEventListener("change",function(e){
   if(e.target.id=="ff"){F.from=e.target.value;render()}
   else if(e.target.id=="ft"){F.to=e.target.value;render()}
   else if(e.target.id=="sfl"){SF=e.target.value;render()}
+  else if(e.target.id=="svs"){SV=e.target.value;render()}
   else if(e.target.id=="rf"){restore(e.target.files[0])}
 });
 document.addEventListener("click",async function(e){
