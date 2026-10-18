@@ -72,8 +72,8 @@ function setRange(r){var n=new Date(),y=n.getFullYear(),m=n.getMonth();
   else{F.from="";F.to=""}}
 setRange("month");
 
-var PAYO=false;
-document.addEventListener("toggle",function(e){if(e.target&&e.target.id=="payd")PAYO=e.target.open},true);
+var PAYO=false,PASO=false;
+document.addEventListener("toggle",function(e){if(e.target&&e.target.id=="payd")PAYO=e.target.open;if(e.target&&e.target.id=="pasd")PASO=e.target.open},true);
 var KEYS=["students","sessions","payments","plans","exc"];
 var fbAuth=null,db=null,USER=null,last={},pend={},got={},ready=false,shown=false,dirty=false,tm=null,unsubs=[];
 KEYS.forEach(function(k){last[k]={}});
@@ -139,10 +139,12 @@ function balPill(b){return b>0?'<span class="pill w">Kalan '+tl(b)+'</span>':b<0
 function studentList(){
   var h='<div class="stat" style="margin-bottom:10px"><span class="mut">Toplam yapılan seans</span><b>'+S.sessions.length+'</b></div><details class="card"><summary style="cursor:pointer;font-weight:600">+ Yeni öğrenci ekle</summary><div style="height:10px"></div><label>Ad soyad</label><input id="sn"><label>Seans ücreti (₺)</label><input id="sf" type="number" inputmode="decimal"><button class="btn" data-a="addStu">Ekle</button></details>';
   if(!S.students.length)return h+'<p class="mut">Henüz öğrenci yok. Yukarıdan ilk öğrenciyi ekle.</p>';
-  var act=S.students.filter(function(s){return s.active!==false}),pas=S.students.filter(function(s){return s.active===false});h+='<div class="tabs"><button class="'+(SV=="a"?"on":"")+'" data-a="sv" data-d="a">Aktif ('+act.length+')</button><button class="'+(SV=="p"?"on":"")+'" data-a="sv" data-d="p">Pasif ('+pas.length+')</button></div>';var lst=SV=="a"?act:pas;if(!lst.length)return h+'<p class="mut">'+(SV=="a"?"Aktif öğrenci yok.":"Pasif öğrenci yok.")+'</p>';return h+lst.map(function(s){
-    var n=S.sessions.filter(function(x){return x.studentId==s.id}).length;
-    return '<div class="card" data-a="open" data-id="'+s.id+'" style="cursor:pointer"><div class="row"><div><b>'+esc(s.name)+'</b><div class="mut">'+n+' seans yapıldı</div></div><div><button class="btn g s" data-a="open" data-id="'+s.id+'">Aç</button></div></div></div>';
-  }).join("");
+  var act=S.students.filter(function(s){return s.active!==false}),pas=S.students.filter(function(s){return s.active===false});
+  function card(s){var n=S.sessions.filter(function(x){return x.studentId==s.id}).length;
+    return '<div class="card" data-a="open" data-id="'+s.id+'" style="cursor:pointer"><div class="row"><div><b>'+esc(s.name)+'</b><div class="mut">'+n+' seans yapıldı</div></div><div><button class="btn g s" data-a="open" data-id="'+s.id+'">Aç</button></div></div></div>'}
+  h+=act.length?act.map(card).join(""):'<p class="mut">Aktif öğrenci yok.</p>';
+  if(pas.length)h+='<details id="pasd" class="card"'+(PASO?' open':'')+'><summary style="cursor:pointer;font-weight:600">Pasif öğrenciler ('+pas.length+')</summary><div style="height:10px"></div>'+pas.map(card).join("")+'</details>';
+  return h;
 }
 function studentDetail(){
   var s=S.students.find(function(x){return x.id==sel});if(!s){sel=null;return studentList()}
