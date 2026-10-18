@@ -154,9 +154,10 @@ function payForm(s){
   if(!S.students.length)return"";
   return '<details class="card"><summary style="cursor:pointer;font-weight:600">+ Ödeme al</summary><div style="height:10px"></div>'+sel2+'<div class="fl"><div><label>Tutar (₺)</label><input id="pa" type="number" inputmode="decimal"></div><div><label>Tarih</label><input id="pd" type="date" value="'+today()+'"></div></div><label>Not (nakit, havale...)</label><input id="pn"><button class="btn" data-a="addPay">Ödemeyi kaydet</button></details>';
 }
-function payList(list,showName){
-  if(!list.length)return"";
-  return '<details id="payd" class="card"'+(PAYO?' open':'')+'><summary style="cursor:pointer;font-weight:600">Alınan ödemeler ('+list.length+')</summary><div style="height:10px"></div>'+list.slice().sort(function(a,b){return a.date<b.date?1:-1}).map(function(p){
+function payList(list,showName,form){
+  form=form||"";
+  if(!list.length&&!form)return"";
+  return '<details id="payd" class="card"'+(PAYO?' open':'')+'><summary style="cursor:pointer;font-weight:600">Alınan ödemeler ('+list.length+')</summary><div style="height:10px"></div>'+form+list.slice().sort(function(a,b){return a.date<b.date?1:-1}).map(function(p){
     if(ED==p.id)return editPay(p);return '<div class="card"><div class="row"><span><b>'+(showName?esc(sname(p.studentId))+' · ':"")+fd(p.date)+'</b> <span class="mut">'+esc(p.note||"")+'</span></span><span><b>'+tl(p.amount)+'</b> <button class="btn g s" data-a="edit" data-id="'+p.id+'">Düzenle</button> <button class="btn g s" data-a="delPay" data-id="'+p.id+'">Sil</button></span></div></div>';
   }).join("")+'</details>';
 }
@@ -176,7 +177,6 @@ function money(){
   var ciro=sum(ses),al=sum(pay),kalan=sum(S.sessions)-sum(S.payments);
   var h='<div class="card"><div class="fl"><div><label>Başlangıç</label><input type="date" id="ff" value="'+F.from+'"></div><div><label>Bitiş</label><input type="date" id="ft" value="'+F.to+'"></div></div><button class="btn g s" data-a="rng" data-r="month">Bu ay</button> <button class="btn g s" data-a="rng" data-r="prev">Geçen ay</button> <button class="btn g s" data-a="rng" data-r="year">Bu yıl</button> <button class="btn g s" data-a="rng" data-r="all">Tümü</button></div>';
   h+='<div class="grid"><div class="stat"><span class="mut">Ciro (seanslar)</span><b>'+tl(ciro)+'</b></div><div class="stat"><span class="mut">Alınan ödemeler</span><b>'+tl(al)+'</b></div><div class="stat"><span class="mut">Toplam kalan alacak</span><b>'+tl(kalan)+'</b></div></div><p class="mut">Seçili dönemde yapılan seans: <b>'+ses.length+'</b></p><p class="mut">Ciro, seans tarihine göre; alınan ödemeler, ödeme tarihine göre hesaplanır. "Toplam kalan alacak" tarih filtresinden bağımsızdır.</p>';
-  h+=payForm(null);
   var mo={};S.sessions.forEach(function(x){var k=x.date.slice(0,7);(mo[k]=mo[k]||{c:0,a:0}).c+=+x.fee||0});S.payments.forEach(function(x){var k=x.date.slice(0,7);(mo[k]=mo[k]||{c:0,a:0}).a+=+x.amount||0});
   h+='<h2>Aylık özet</h2><div class="card tw"><table style="width:100%;border-collapse:collapse"><tr class="mut"><td>Ay</td><td>Ciro</td><td>Alınan</td><td>Fark</td></tr>';
   Object.keys(mo).sort().reverse().forEach(function(k){h+='<tr><td style="padding:6px 0">'+k.slice(5)+'.'+k.slice(0,4)+'</td><td>'+tl(mo[k].c)+'</td><td>'+tl(mo[k].a)+'</td><td>'+tl(mo[k].c-mo[k].a)+'</td></tr>'});
@@ -185,7 +185,7 @@ function money(){
     var c=sum(ses.filter(function(x){return x.studentId==s.id})),a=sum(pay.filter(function(x){return x.studentId==s.id})),b=bal(s.id);
     h+='<tr><td style="padding:6px 0">'+esc(s.name)+'</td><td>'+ses.filter(function(x){return x.studentId==s.id}).length+'</td><td>'+tl(c)+'</td><td>'+tl(a)+'</td><td>'+(b>0?'<b style="color:var(--warn)">'+tl(b)+'</b>':tl(b))+'</td></tr>';
   });
-  h+='</table></div><details class="card"><summary style="cursor:pointer;font-weight:600">Seans ücretleri</summary><div style="height:10px"></div><p class="mut">Yeni ücret yalnızca bundan sonra eklenecek seanslara uygulanır.</p>'+S.students.map(function(s){return '<div class="fl"><div><label>'+esc(s.name)+'</label><input id="uf'+s.id+'" type="number" inputmode="decimal" value="'+(s.fee||0)+'"></div><button class="btn g s" data-a="saveFee" data-id="'+s.id+'">Kaydet</button></div>'}).join("")+'</details>'+payList(pay,true);
+  h+='</table></div><details class="card"><summary style="cursor:pointer;font-weight:600">Seans ücretleri</summary><div style="height:10px"></div><p class="mut">Yeni ücret yalnızca bundan sonra eklenecek seanslara uygulanır.</p>'+S.students.map(function(s){return '<div class="fl"><div><label>'+esc(s.name)+'</label><input id="uf'+s.id+'" type="number" inputmode="decimal" value="'+(s.fee||0)+'"></div><button class="btn g s" data-a="saveFee" data-id="'+s.id+'">Kaydet</button></div>'}).join("")+'</details>'+payList(pay,true,payForm(null));
   return h+'<button class="btn g s" data-a="csv">Seansları indir (CSV)</button> <button class="btn g s" data-a="csv2">Ödemeleri indir (CSV)</button>';
 }
 var REC=null;
