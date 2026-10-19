@@ -175,6 +175,13 @@ function payForm(s){
   if(!S.students.length)return"";
   return '<details class="card"><summary style="cursor:pointer;font-weight:600">+ Ödeme al</summary><div style="height:10px"></div>'+sel2+'<div class="fl"><div><label>Tutar (₺)</label><input id="pa" type="number" inputmode="decimal"></div><div><label>Tarih</label><input id="pd" type="date" value="'+today()+'"></div></div><label>Not (nakit, havale...)</label><input id="pn"><button class="btn" data-a="addPay">Ödemeyi kaydet</button></details>';
 }
+function estMonth(ym){var y=+ym.slice(0,4),m=+ym.slice(5)-1,dim=new Date(y,m+1,0).getDate(),t0=today(),done=0,plan=0,pc=0,d;
+  S.sessions.forEach(function(x){if(x.date.slice(0,7)==ym)done+=+x.fee||0});
+  for(d=1;d<=dim;d++){var ds=ym+"-"+String(d).padStart(2,"0");if(ds<t0)continue;
+    occ(ds).forEach(function(o){if(S.sessions.some(function(x){return x.studentId==o.sid&&x.date==ds}))return;var st=S.students.find(function(z){return z.id==o.sid});if(!st)return;plan+=+st.fee||0;pc++})}
+  return{done:done,plan:plan,pc:pc,total:done+plan}}
+function estHtml(){var ym=(F.from||today()).slice(0,7),e=estMonth(ym);
+  return '<div class="mut" style="margin:-4px 0 10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center"><span class="pill">📈 '+AY[+ym.slice(5)-1]+' tahmini gelir: <b>'+tl(e.total)+'</b></span><span>yapılan '+tl(e.done)+' + planlı '+tl(e.plan)+' ('+e.pc+' seans)</span></div>'}
 function payList(list,showName,form){
   form=form||"";
   if(!list.length&&!form)return"";
@@ -197,7 +204,7 @@ function money(){
   var ses=S.sessions.filter(function(x){return inR(x.date)}),pay=S.payments.filter(function(x){return inR(x.date)});
   var ciro=sum(ses),al=sum(pay),kalan=sum(S.sessions)-sum(S.payments);
   var h='<div class="card"><div class="fl"><div><label>Başlangıç</label><input type="date" id="ff" value="'+F.from+'"></div><div><label>Bitiş</label><input type="date" id="ft" value="'+F.to+'"></div></div><button class="btn g s" data-a="rng" data-r="month">Bu ay</button> <button class="btn g s" data-a="rng" data-r="prev">Geçen ay</button> <button class="btn g s" data-a="rng" data-r="year">Bu yıl</button> <button class="btn g s" data-a="rng" data-r="all">Tümü</button></div>';
-  h+='<div class="grid"><div class="stat"><span class="mut">Ciro (seanslar)</span><b>'+tl(ciro)+'</b></div><div class="stat"><span class="mut">Alınan ödemeler</span><b>'+tl(al)+'</b></div><div class="stat"><span class="mut">Toplam kalan alacak</span><b>'+tl(kalan)+'</b></div></div><p class="mut">Seçili dönemde yapılan seans: <b>'+ses.length+'</b></p><p class="mut">Ciro, seans tarihine göre; alınan ödemeler, ödeme tarihine göre hesaplanır. "Toplam kalan alacak" tarih filtresinden bağımsızdır.</p>';
+  h+='<div class="grid"><div class="stat"><span class="mut">Ciro (seanslar)</span><b>'+tl(ciro)+'</b></div><div class="stat"><span class="mut">Alınan ödemeler</span><b>'+tl(al)+'</b></div><div class="stat"><span class="mut">Toplam kalan alacak</span><b>'+tl(kalan)+'</b></div></div>'+estHtml()+'<p class="mut">Seçili dönemde yapılan seans: <b>'+ses.length+'</b></p><p class="mut">Ciro, seans tarihine göre; alınan ödemeler, ödeme tarihine göre hesaplanır. "Toplam kalan alacak" tarih filtresinden bağımsızdır.</p>';
   var mo={};S.sessions.forEach(function(x){var k=x.date.slice(0,7);(mo[k]=mo[k]||{c:0,a:0}).c+=+x.fee||0});S.payments.forEach(function(x){var k=x.date.slice(0,7);(mo[k]=mo[k]||{c:0,a:0}).a+=+x.amount||0});
   h+='<h2>Aylık özet</h2><div class="card tw"><table style="width:100%;border-collapse:collapse"><tr class="mut"><td>Ay</td><td>Ciro</td><td>Alınan</td><td>Fark</td></tr>';
   Object.keys(mo).sort().reverse().forEach(function(k){h+='<tr><td style="padding:6px 0">'+k.slice(5)+'.'+k.slice(0,4)+'</td><td>'+tl(mo[k].c)+'</td><td>'+tl(mo[k].a)+'</td><td>'+tl(mo[k].c-mo[k].a)+'</td></tr>'});
