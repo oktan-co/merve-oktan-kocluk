@@ -11,6 +11,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js"></script>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2b3a4f">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
 :root{--bg:#f1f3f5;--card:#fff;--tx:#1a202c;--mut:#5f6b7a;--ac:#2b3a4f;--acb:#e9ecf0;--bd:#d3d8de;--warn:#8a3b12;--warnb:#f7ebe3;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10141a;--card:#181d25;--tx:#e6e8eb;--mut:#9aa3af;--ac:#4f6a8a;--acb:#232b37;--bd:#2a323d;--warn:#d9a070;--warnb:#33281f;color-scheme:dark}}
@@ -350,6 +353,7 @@ document.addEventListener("click",async function(e){
   else if(a=="csv2"){return dl("odemeler.csv",[["Tarih","Öğrenci","Tutar","Not"]].concat(S.payments.map(function(x){return[x.date,sname(x.studentId),x.amount,x.note||""]})))}
   save();render();
 });
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(function(){});
 init();
 </script>
 </body>
