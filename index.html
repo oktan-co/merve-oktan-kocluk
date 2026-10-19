@@ -220,11 +220,14 @@ var REC=null,MICON=false,MBASE="",MRUN="",MT=null,MLAST=0;
 function micBtn(){return document.querySelector('[data-a="mic"]')}
 function micUI(){var b=micBtn();if(!b)return;if(MICON){b.textContent="⏹ Durdur (dinliyor…)";b.style.background="var(--warn)";b.style.color="#fff";b.style.borderColor="var(--warn)"}else{b.textContent="🎤 Sesle yaz";b.style.background="";b.style.color="";b.style.borderColor=""}}
 function joinTxt(a,b){a=a||"";b=(b||"").trim();if(!b)return a;return a&&!/\s$/.test(a)?a+" "+b:a+b}
+function nrm(t){return String(t||"").toLocaleLowerCase("tr").replace(/\s+/g," ").trim()}
+function mergeTxt(cur,x){x=String(x||"").trim();if(!x)return cur;var a=nrm(cur),b=nrm(x);if(!a)return x;if(b.indexOf(a)==0)return x;if(a.indexOf(b)==0||a.slice(-b.length)==b)return cur;return joinTxt(cur,x)}
 function micStop(){MICON=false;if(REC){try{REC.stop()}catch(e){}}micUI()}
 function micRun(){
   var SR=window.SpeechRecognition||window.webkitSpeechRecognition,r=new SR();
   r.lang="tr-TR";r.continuous=true;r.interimResults=true;REC=r;MRUN="";
-  r.onresult=function(e){var f="",i="";for(var k=0;k<e.results.length;k++){var x=e.results[k][0].transcript;if(e.results[k].isFinal)f=joinTxt(f,x);else i=joinTxt(i,x)}
+  r.onresult=function(e){var f="",i="";for(var k=0;k<e.results.length;k++){var x=e.results[k][0].transcript;if(e.results[k].isFinal)f=mergeTxt(f,x);else i=mergeTxt(i,x)}
+    if(i&&f&&nrm(i).indexOf(nrm(f))==0)i=i.slice(f.length);
     MRUN=f;MLAST=Date.now();var el=$(MT);if(el)el.value=joinTxt(joinTxt(MBASE,f),i)};
   r.onerror=function(e){if(e.error=="not-allowed"||e.error=="service-not-allowed"){MICON=false;alert("Mikrofon izni verilmedi. Klavyedeki mikrofon simgesiyle sesli yazabilirsin.")}};
   r.onend=function(){REC=null;MBASE=joinTxt(MBASE,MRUN);MRUN="";var el=$(MT);if(el)el.value=MBASE;
