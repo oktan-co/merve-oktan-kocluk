@@ -116,7 +116,7 @@ function take(k,snap){
   got[k]=true;if(!KEYS.every(function(x){return got[x]}))return;
   ready=true;status("Bağlı ✓ ortak kayıt");
   var f=document.activeElement;
-  if(shown&&f&&/INPUT|TEXTAREA|SELECT/.test(f.tagName)&&$("app").contains(f))return;
+  if(shown&&(MICON||(f&&/INPUT|TEXTAREA|SELECT/.test(f.tagName)&&$("app").contains(f))))return;
   shown=true;render();hideSplash();
 }
 function save(){if(!db||!USER)return;dirty=true;clearTimeout(tm);tm=setTimeout(function(){tm=null;flush()},500)}
@@ -144,7 +144,7 @@ async function flush(){
   if(!dirty){var p=pend;pend={};Object.keys(p).forEach(function(k){take(k,p[k])})}
 }
 var LK="";function top0(){window.scrollTo(0,0);document.documentElement.scrollTop=0;var h=document.querySelector(".hd");if(h)h.scrollIntoView({block:"start"})}
-function render(){var k=view+"|"+sel;if(k!=LK){LK=k;Q="";setTimeout(top0,30)}
+function render(){if(MICON)micStop();var k=view+"|"+sel;if(k!=LK){LK=k;Q="";setTimeout(top0,30)}
   $("tabs").innerHTML=TABS.map(function(t){return '<button class="'+(view==t[0]?"on":"")+'" data-v="'+t[0]+'">'+t[1]+'</button>'}).join("");
   var a=$("app");
   if(view=="students")a.innerHTML=sel?studentDetail():studentList();
@@ -216,19 +216,26 @@ function money(){
   h+='</table></div><details class="card"><summary style="cursor:pointer;font-weight:600">Seans ücretleri</summary><div style="height:10px"></div><p class="mut">Yeni ücret yalnızca bundan sonra eklenecek seanslara uygulanır.</p>'+S.students.map(function(s){return '<div class="fl"><div><label>'+esc(s.name)+'</label><input id="uf'+s.id+'" type="number" inputmode="decimal" value="'+(s.fee||0)+'"></div><button class="btn g s" data-a="saveFee" data-id="'+s.id+'">Kaydet</button></div>'}).join("")+'</details>'+payList(pay,true,payForm(null));
   return h+'<button class="btn g s" data-a="csv">Seansları indir (CSV)</button> <button class="btn g s" data-a="csv2">Ödemeleri indir (CSV)</button>';
 }
-var REC=null;
+var REC=null,MICON=false,MBASE="",MRUN="",MT=null,MLAST=0;
 function micBtn(){return document.querySelector('[data-a="mic"]')}
+function micUI(){var b=micBtn();if(!b)return;if(MICON){b.textContent="⏹ Durdur (dinliyor…)";b.style.background="var(--warn)";b.style.color="#fff";b.style.borderColor="var(--warn)"}else{b.textContent="🎤 Sesle yaz";b.style.background="";b.style.color="";b.style.borderColor=""}}
+function joinTxt(a,b){a=a||"";b=(b||"").trim();if(!b)return a;return a&&!/\s$/.test(a)?a+" "+b:a+b}
+function micStop(){MICON=false;if(REC){try{REC.stop()}catch(e){}}micUI()}
+function micRun(){
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition,r=new SR();
+  r.lang="tr-TR";r.continuous=true;r.interimResults=true;REC=r;MRUN="";
+  r.onresult=function(e){var f="",i="";for(var k=0;k<e.results.length;k++){var x=e.results[k][0].transcript;if(e.results[k].isFinal)f=joinTxt(f,x);else i=joinTxt(i,x)}
+    MRUN=f;MLAST=Date.now();var el=$(MT);if(el)el.value=joinTxt(joinTxt(MBASE,f),i)};
+  r.onerror=function(e){if(e.error=="not-allowed"||e.error=="service-not-allowed"){MICON=false;alert("Mikrofon izni verilmedi. Klavyedeki mikrofon simgesiyle sesli yazabilirsin.")}};
+  r.onend=function(){REC=null;MBASE=joinTxt(MBASE,MRUN);MRUN="";var el=$(MT);if(el)el.value=MBASE;
+    if(MICON&&el&&Date.now()-MLAST<120000){setTimeout(function(){if(MICON)try{micRun()}catch(er){MICON=false;micUI()}},250)}else{MICON=false;micUI()}};
+  try{r.start()}catch(er){REC=null;MICON=false;micUI()}
+}
 function toggleMic(b){
   var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR)return alert("Bu tarayıcı sesli yazmayı desteklemiyor. Klavyedeki mikrofon simgesini kullanabilirsin.");
-  if(REC){REC.stop();return}
-  var ta=$(b.dataset.t),base=ta.value,r=new SR();
-  r.lang="tr-TR";r.continuous=true;r.interimResults=true;REC=r;b.textContent="⏹ Durdur";
-  r.onresult=function(e){var f="",i="";for(var k=0;k<e.results.length;k++){var x=e.results[k][0].transcript;if(e.results[k].isFinal)f+=x;else i+=x}
-    var el=$(b.dataset.t);if(el)el.value=(base?base+" ":"")+f+i};
-  r.onerror=function(e){if(e.error=="not-allowed"||e.error=="service-not-allowed")alert("Mikrofon izni verilmedi ya da bu sayfada kullanılamıyor. Klavyedeki mikrofon simgesiyle sesli yazabilirsin.")};
-  r.onend=function(){REC=null;var m=micBtn();if(m)m.textContent="🎤 Sesle yaz"};
-  try{r.start()}catch(er){REC=null;b.textContent="🎤 Sesle yaz"}
+  if(MICON){micStop();return}
+  MT=b.dataset.t;var ta=$(MT);if(!ta)return;MBASE=ta.value;MICON=true;MLAST=Date.now();micUI();micRun();
 }
 var CF=null;
 function ask(key,b){if(CF==key){CF=null;return true}CF=key;var o=b.textContent;b.textContent="Emin misin? Tekrar dokun";setTimeout(function(){if(CF==key){CF=null;b.textContent=o}},4000);return false}
