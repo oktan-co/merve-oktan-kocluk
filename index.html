@@ -2,15 +2,12 @@
 <html lang="tr">
 <head>
 <meta charset="utf-8">
+<meta name="color-scheme" content="light dark">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Koç Takip</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Koç Takip">
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js"></script>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2b3a4f">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -49,12 +46,17 @@ label{font-size:13px;color:var(--mut)}
 </head>
 <body>
 <div id="splash"><div id="sp-in"><div class="spi">📒</div><div class="spt">Koç Takip</div></div></div>
+<script>window.T0E=Date.now()</script>
 <div class="w">
 <div class="hd"><h1>📒 Koç Takip</h1><button class="btn g s" id="setbtn" style="display:none" data-a="settings">⚙ Ayarlar</button></div>
 <div class="tabs" id="tabs"></div>
 <div id="app"></div>
 <div id="st"></div>
 </div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
 <script>
 var S={students:[],sessions:[],payments:[],plans:[],exc:[]},view="students",sel=null,store=null,uid=null,SF="",WK=0,ED=null,PRE=null,SLO=false,CH=null,MV="",Q="",SV="a",MO=new Date().getFullYear()*12+new Date().getMonth(),SD=today(),F={from:"",to:""};
 var TABS=[["students","Öğrenciler"],["cal","Takvim"],["money","Muhasebe"]];
@@ -81,7 +83,7 @@ document.addEventListener("toggle",function(e){if(e.target&&e.target.id=="payd")
 var KEYS=["students","sessions","payments","plans","exc"];
 var fbAuth=null,db=null,USER=null,last={},pend={},got={},ready=false,shown=false,dirty=false,tm=null,unsubs=[];
 KEYS.forEach(function(k){last[k]={}});
-var T0=Date.now();
+var T0=window.T0E||Date.now();
 function hideSplash(){var sp=document.getElementById("splash");if(!sp||sp.dataset.go)return;sp.dataset.go="1";
   var wait=Math.max(0,1400-(Date.now()-T0));
   setTimeout(function(){
