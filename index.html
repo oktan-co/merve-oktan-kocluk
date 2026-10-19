@@ -109,7 +109,7 @@ function init(){
   firebase.initializeApp(c);fbAuth=firebase.auth();db=firebase.firestore();
   fbAuth.onAuthStateChanged(function(u){USER=u;if(u)start();else{stop();showLogin()}});
 }
-function start(){var hh=document.querySelector(".hd");if(hh)hh.style.display="";got={};ready=false;shown=false;status("Bağlanıyor…");$("setbtn").style.display="";
+function start(){var hh=document.querySelector(".hd");if(hh)hh.style.display="";got={};$("tabs").innerHTML="";$("app").innerHTML='<p class="mut" style="text-align:center;margin-top:28vh">Veriler yükleniyor…</p>';ready=false;shown=false;status("Bağlanıyor…");$("setbtn").style.display="";
   KEYS.forEach(function(k){unsubs.push(db.collection(k).onSnapshot(function(snap){if(dirty){pend[k]=snap;return}take(k,snap)},function(err){status("Veri okunamadı: "+err.code);toast("Veriler okunamadı. Bu hesabın yetkisi olmayabilir ("+err.code+").")}))})}
 function stop(){unsubs.forEach(function(u){u()});unsubs=[];S={students:[],sessions:[],payments:[],plans:[],exc:[]};KEYS.forEach(function(k){last[k]={}});pend={};got={};ready=false;shown=false;dirty=false;clearTimeout(tm);tm=null;$("setbtn").style.display="none";view="students";sel=null}
 function take(k,snap){
