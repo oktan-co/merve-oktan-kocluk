@@ -63,6 +63,7 @@ label{font-size:13px;color:var(--mut)}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
 <script src="firebase-config.js"></script>
 <script>
 var S={students:[],sessions:[],payments:[],plans:[],exc:[]},view="students",sel=null,store=null,uid=null,SF="",WK=0,ED=null,PRE=null,SLO=false,CH=null,MV="",Q="",SV="a",MO=new Date().getFullYear()*12+new Date().getMonth(),SD=today(),F={from:"",to:""};
@@ -85,8 +86,8 @@ function setRange(r){var n=new Date(),y=n.getFullYear(),m=n.getMonth();
   else{F.from="";F.to=""}}
 setRange("month");
 
-var PAYO=false,PASO=false;
-document.addEventListener("toggle",function(e){if(e.target&&e.target.id=="payd")PAYO=e.target.open;if(e.target&&e.target.id=="pasd")PASO=e.target.open},true);
+var PAYO=false,PASO=false,SESO=false,STO=false,SHP=false;
+document.addEventListener("toggle",function(e){if(e.target&&e.target.id=="payd")PAYO=e.target.open;if(e.target&&e.target.id=="pasd")PASO=e.target.open;if(e.target&&e.target.id=="sesd")SESO=e.target.open},true);
 var KEYS=["students","sessions","payments","plans","exc"];
 var fbAuth=null,db=null,USER=null,last={},pend={},got={},ready=false,shown=false,dirty=false,tm=null,unsubs=[];
 KEYS.forEach(function(k){last[k]={}});
@@ -116,7 +117,7 @@ function init(){
   firebase.initializeApp(c);fbAuth=firebase.auth();db=firebase.firestore();
   fbAuth.onAuthStateChanged(function(u){USER=u;if(u)start();else{stop();showLogin()}});
 }
-function start(){var hh=document.querySelector(".hd");if(hh)hh.style.display="";got={};$("tabs").innerHTML="";$("app").innerHTML='<p class="mut" style="text-align:center;margin-top:28vh">Veriler yükleniyor…</p>';ready=false;shown=false;status("Bağlanıyor…");$("setbtn").style.display="";
+function start(){var hh=document.querySelector(".hd");if(hh)hh.style.display="";got={};$("tabs").innerHTML="";$("app").innerHTML='<p class="mut" style="text-align:center;margin-top:28vh">Veriler yükleniyor…</p>';ready=false;shown=false;status("Bağlanıyor…");$("setbtn").style.display="";setTimeout(notifSync,3000);
   KEYS.forEach(function(k){unsubs.push(db.collection(k).onSnapshot(function(snap){if(dirty){pend[k]=snap;return}take(k,snap)},function(err){status("Veri okunamadı: "+err.code);toast("Veriler okunamadı. Bu hesabın yetkisi olmayabilir ("+err.code+").")}))})}
 function stop(){unsubs.forEach(function(u){u()});unsubs=[];S={students:[],sessions:[],payments:[],plans:[],exc:[]};KEYS.forEach(function(k){last[k]={}});pend={};got={};ready=false;shown=false;dirty=false;clearTimeout(tm);tm=null;$("setbtn").style.display="none";view="students";sel=null}
 function take(k,snap){
@@ -158,7 +159,7 @@ function render(){if(MICON)micStop();var k=view+"|"+sel;if(k!=LK){LK=k;Q="";setT
   var a=$("app");
   if(view=="students")a.innerHTML=sel?studentDetail():studentList();
   else if(view=="sessions"){if(SF&&!S.students.some(function(x){return x.id==SF}))SF="";var fl=S.sessions.filter(function(x){return !SF||x.studentId==SF});a.innerHTML=sessionForm(null)+'<h2>Seanslar</h2><div class="card"><label>Öğrenciye göre filtrele</label><select id="sfl"><option value="">Tüm öğrenciler</option>'+S.students.map(function(x){return '<option value="'+x.id+'"'+(x.id==SF?' selected':'')+'>'+esc(x.name)+'</option>'}).join("")+'</select><span class="mut">'+fl.length+' seans · '+tl(sum(fl))+'</span></div>'+sessionList(fl,true)}
-  else if(view=="settings")a.innerHTML='<button class="btn g s" data-a="closeSet">← Geri</button><div style="margin-top:10px">'+themeCard()+'<div class="card"><h2>Hesap</h2><p class="mut">'+esc(USER?(USER.email||"").replace("@kocluk.com",""):"")+'</p><button class="btn g s" data-a="logout">Çıkış yap</button></div>'+backupCard()+'</div>';else if(view=="cal")a.innerHTML=calendar();else a.innerHTML=money();
+  else if(view=="settings")a.innerHTML='<button class="btn g s" data-a="closeSet">← Geri</button><div style="margin-top:10px">'+themeCard()+notifCard()+'<div class="card"><h2>Hesap</h2><p class="mut">'+esc(USER?(USER.email||"").replace("@kocluk.com",""):"")+'</p><button class="btn g s" data-a="logout">Çıkış yap</button></div>'+backupCard()+'</div>';else if(view=="cal")a.innerHTML=calendar();else a.innerHTML=money();
 }
 function bal(id){return sum(S.sessions.filter(function(x){return x.studentId==id}))-sum(S.payments.filter(function(x){return x.studentId==id}))}
 function balPill(b){return b>0?'<span class="pill w">Kalan '+tl(b)+'</span>':b<0?'<span class="pill">Fazla ödeme '+tl(-b)+'</span>':'<span class="pill">Güncel</span>'}
@@ -176,8 +177,13 @@ function studentList(){
 }
 function studentDetail(){
   var s=S.students.find(function(x){return x.id==sel});if(!s){sel=null;return studentList()}
-  var ss=S.sessions.filter(function(x){return x.studentId==s.id}),ps=S.payments.filter(function(x){return x.studentId==s.id});
-  return '<button class="btn g s" data-a="back">← Geri</button><div class="card" style="margin-top:10px"><input id="en" class="ttl" value="'+esc(s.name)+'" aria-label="Ad soyad"><div class="mut" style="margin:2px 0 10px">'+ss.length+' seans yapıldı'+(s.active===false?' · <span class="pill w">Pasif</span>':'')+'</div>'+slotsHtml(s)+'<details style="margin:4px 0 10px"><summary style="cursor:pointer;padding:6px 0;font-weight:600">Öğrenci notu'+(s.note?' •':'')+'</summary><textarea id="gn">'+esc(s.note||"")+'</textarea></details><div class="row"><button class="btn s" data-a="saveNote">Notu kaydet</button><button class="btn g s" data-a="toggleAct">'+(s.active===false?"Aktif yap":"Pasif yap")+'</button> <button class="btn g s" data-a="delStu">Öğrenciyi sil</button></div></div>'+'<h2>Seans geçmişi ('+ss.length+')</h2>'+'<input id="q" type="search" placeholder="🔍 Bu öğrencinin seans notlarında ara..." value="'+esc(Q)+'"><div id="sres">'+sres(ss)+'</div>'+sessionForm(s);
+  var ss=S.sessions.filter(function(x){return x.studentId==s.id}),b=bal(s.id);
+  var h='<div class="row"><button class="btn g s" data-a="back">← Geri</button><button class="btn g s" data-a="togSet" aria-label="Öğrenci ayarları">⚙</button></div>';
+  if(STO)h+='<div class="card" style="margin-top:10px"><h2>Öğrenci ayarları</h2><label>Ad soyad</label><input id="en" value="'+esc(s.name)+'">'+slotsHtml(s)+'<details style="margin:4px 0 10px"><summary style="cursor:pointer;padding:6px 0;font-weight:600">Öğrenci notu'+(s.note?' •':'')+'</summary><textarea id="gn">'+esc(s.note||"")+'</textarea></details><div class="row"><button class="btn s" data-a="saveNote">Kaydet</button><button class="btn g s" data-a="toggleAct">'+(s.active===false?"Aktif yap":"Pasif yap")+'</button> <button class="btn g s" data-a="delStu">Öğrenciyi sil</button></div></div>';
+  h+='<h2 style="margin:12px 0 6px;font-size:20px">'+esc(s.name)+'</h2><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"><span class="pill">'+ss.length+' seans</span>'+balPill(b)+(s.active===false?'<span class="pill w">Pasif</span>':'')+'</div>';
+  h+='<details id="sesd" class="card"'+((SESO||PRE)?' open':'')+'><summary style="cursor:pointer;font-weight:600">+ Seans ekle</summary><div style="height:10px"></div>'+sessionForm(s,true)+'</details>';
+  h+='<h2>Seans geçmişi</h2><input id="q" type="search" placeholder="🔍 Bu öğrencinin seans notlarında ara..." value="'+esc(Q)+'"><div id="sres">'+sres(ss)+'</div>';
+  return h;
 }
 function payForm(s){
   var sel2=s?'<input type="hidden" id="ps" value="'+s.id+'">':'<label>Öğrenci</label><select id="ps">'+S.students.map(function(x){return '<option value="'+x.id+'">'+esc(x.name)+'</option>'}).join("")+'</select>';
@@ -198,10 +204,11 @@ function payList(list,showName,form){
     if(ED==p.id)return editPay(p);return '<div class="card"><div class="row"><span><b>'+(showName?esc(sname(p.studentId))+' · ':"")+fd(p.date)+'</b> <span class="mut">'+esc(p.note||"")+'</span></span><span><b>'+tl(p.amount)+'</b> <button class="btn g s" data-a="edit" data-id="'+p.id+'">Düzenle</button> <button class="btn g s" data-a="delPay" data-id="'+p.id+'">Sil</button></span></div></div>';
   }).join("")+'</details>';
 }
-function sessionForm(s){
+function sessionForm(s,bare){
   if(!S.students.length)return '<p class="mut">Önce "Öğrenciler" sekmesinden öğrenci ekle.</p>';
   var opts=S.students.map(function(x){return '<option value="'+x.id+'">'+esc(x.name)+'</option>'}).join("");
-  return '<div class="card"><h2>Yeni seans notu</h2>'+(s?'<input type="hidden" id="ss" value="'+s.id+'">':'<label>Öğrenci</label><select id="ss">'+opts+'</select>')+'<label>Tarih</label><input id="sd" type="date" value="'+(PRE?PRE.date:today())+'"><label>Bugün ne yaptık?</label> <button class="btn g s" data-a="mic" data-t="sx" type="button">🎤 Sesle yaz</button><textarea id="sx" placeholder="Konular, ödev, gözlemler, bir sonraki seans için plan...">'+(PRE?esc(PRE.note):'')+'</textarea>'+(s?'<input id="sfee" type="hidden" value="'+s.fee+'">':'<label>Seans ücreti (₺)</label><input id="sfee" type="number" inputmode="decimal">')+'<button class="btn" data-a="addSes">Seansı kaydet</button></div>';
+  var f=(s?'<input type="hidden" id="ss" value="'+s.id+'">':'<label>Öğrenci</label><select id="ss">'+opts+'</select>')+'<label>Tarih</label><input id="sd" type="date" value="'+(PRE?PRE.date:today())+'"><label>Bugün ne yaptık?</label> <button class="btn g s" data-a="mic" data-t="sx" type="button">🎤 Sesle yaz</button><textarea id="sx" placeholder="Konular, ödev, gözlemler, bir sonraki seans için plan...">'+(PRE?esc(PRE.note):'')+'</textarea>'+(s?'<input id="sfee" type="hidden" value="'+s.fee+'">':'<label>Seans ücreti (₺)</label><input id="sfee" type="number" inputmode="decimal">')+'<button class="btn" data-a="addSes">Seansı kaydet</button>';
+  return bare?f:'<div class="card"><h2>Yeni seans notu</h2>'+f+'</div>';
 }
 function sessionList(list,showName){
   if(!list.length)return '<p class="mut">Henüz seans yok.</p>';
@@ -218,11 +225,13 @@ function money(){
   h+='<h2>Aylık özet</h2><div class="card tw"><table style="width:100%;border-collapse:collapse"><tr class="mut"><td>Ay</td><td>Ciro</td><td>Alınan</td><td>Fark</td></tr>';
   Object.keys(mo).sort().reverse().forEach(function(k){h+='<tr><td style="padding:6px 0">'+k.slice(5)+'.'+k.slice(0,4)+'</td><td>'+tl(mo[k].c)+'</td><td>'+tl(mo[k].a)+'</td><td>'+tl(mo[k].c-mo[k].a)+'</td></tr>'});
   h+='</table></div><h2>Öğrenci bazında (seçili dönem)</h2><div class="card tw"><table style="width:100%;border-collapse:collapse"><tr class="mut"><td>Öğrenci</td><td>Seans</td><td>Ciro</td><td>Alınan</td><td>Toplam kalan</td></tr>';
+  var hid=0;
   S.students.forEach(function(s){
     var c=sum(ses.filter(function(x){return x.studentId==s.id})),a=sum(pay.filter(function(x){return x.studentId==s.id})),b=bal(s.id);
+    if(s.active===false&&b<=0){hid++;if(!SHP)return}
     h+='<tr><td style="padding:6px 0">'+esc(s.name)+'</td><td>'+ses.filter(function(x){return x.studentId==s.id}).length+'</td><td>'+tl(c)+'</td><td>'+tl(a)+'</td><td>'+(b>0?'<b style="color:var(--warn)">'+tl(b)+'</b>':tl(b))+'</td></tr>';
   });
-  h+='</table></div><details class="card"><summary style="cursor:pointer;font-weight:600">Seans ücretleri</summary><div style="height:10px"></div><p class="mut">Yeni ücret yalnızca bundan sonra eklenecek seanslara uygulanır.</p>'+S.students.map(function(s){return '<div class="fl"><div><label>'+esc(s.name)+'</label><input id="uf'+s.id+'" type="number" inputmode="decimal" value="'+(s.fee||0)+'"></div><button class="btn g s" data-a="saveFee" data-id="'+s.id+'">Kaydet</button></div>'}).join("")+'</details>'+payList(pay,true,payForm(null));
+  h+='</table></div>'+(hid?'<div style="margin:-4px 0 10px"><button class="btn g s" data-a="togHid">'+(SHP?'Gizlenenleri sakla':'Gizlenen '+hid+' öğrenciyi göster')+'</button> <span class="mut">Pasif ve borcu kalmayanlar</span></div>':'')+'<details class="card"><summary style="cursor:pointer;font-weight:600">Seans ücretleri</summary><div style="height:10px"></div><p class="mut">Yeni ücret yalnızca bundan sonra eklenecek seanslara uygulanır.</p>'+S.students.map(function(s){return '<div class="fl"><div><label>'+esc(s.name)+'</label><input id="uf'+s.id+'" type="number" inputmode="decimal" value="'+(s.fee||0)+'"></div><button class="btn g s" data-a="saveFee" data-id="'+s.id+'">Kaydet</button></div>'}).join("")+'</details>'+payList(pay,true,payForm(null));
   return h+'<button class="btn g s" data-a="csv">Seansları indir (CSV)</button> <button class="btn g s" data-a="csv2">Ödemeleri indir (CSV)</button>';
 }
 var REC=null,MICON=false,MBASE="",MRUN="",MT=null,MLAST=0;
@@ -259,6 +268,33 @@ var THEMES=[["petrol","Petrol","#3d6b73","#f5f7f8"],["gul","Gül kurusu","#a35d6
 function curTheme(){return document.documentElement.getAttribute("data-th")||"petrol"}
 function setTheme(k){document.documentElement.setAttribute("data-th",k);try{localStorage.setItem("koc-theme",k)}catch(e){}var m=document.querySelector('meta[name="theme-color"]'),c=(window.THEME_COLORS||{})[k];if(m&&c)m.setAttribute("content",c)}
 function themeCard(){var c=curTheme();var cn=(THEMES.find(function(t){return t[0]==c})||THEMES[0])[1];return '<details class="card"><summary style="cursor:pointer;font-weight:600">Tema <span class="mut" style="font-weight:400">('+cn+')</span></summary><div style="height:10px"></div><p class="mut">Seçtiğin tema bu cihazda hatırlanır.</p><div class="thg">'+THEMES.map(function(t){return '<button class="thb'+(t[0]==c?' on':'')+'" data-a="theme" data-d="'+t[0]+'"><i style="background:linear-gradient(135deg,'+t[2]+' 50%,'+t[3]+' 50%)"></i>'+t[1]+(t[0]==c?' ✓':'')+'</button>'}).join("")+'</div></details>'}
+function notifCard(){var p=("Notification" in window)?Notification.permission:"yok",t;
+  if(p=="granted")t="Bu cihazda bildirimler açık ✓ Seanstan bir gün önce 23:00'te yarının programı, seans günü 21:00'de not hatırlatması gelir.";
+  else if(p=="denied")t="Bildirim izni kapalı. Telefon ya da tarayıcı ayarlarından Koç Takip için bildirime izin ver.";
+  else if(p=="yok")t="Bu tarayıcı bildirimi desteklemiyor. iPhone'da önce uygulamayı Ana ekrana ekle, sonra Ana ekran simgesinden aç.";
+  else t="Seanstan bir gün önce 23:00'te yarının programı, seans günü 21:00'de not hatırlatması gelir.";
+  return '<div class="card"><h2>Bildirimler</h2><p class="mut">'+t+'</p>'+(p=="yok"||p=="denied"?'':'<button class="btn s" data-a="notifOn">'+(p=="granted"?'Bu cihazı yeniden kaydet':'Bildirimleri aç')+'</button>')+'</div>'}
+function fcmReady(){return window.firebase&&firebase.messaging&&window.VAPID_KEY&&!/BURAYA/.test(window.VAPID_KEY)}
+async function notifSync(loud){
+  if(!("Notification" in window)||Notification.permission!="granted"||!db||!USER||!fcmReady())return;
+  try{
+    if(!(await firebase.messaging.isSupported()))return;
+    var reg=await navigator.serviceWorker.ready;
+    var tok=await firebase.messaging().getToken({vapidKey:window.VAPID_KEY,serviceWorkerRegistration:reg});
+    if(!tok)return;
+    await db.collection("devices").doc(tok).set({token:tok,user:(USER.email||"").replace("@kocluk.com",""),ua:navigator.userAgent.slice(0,140),at:Date.now()});
+    if(loud===true)toast("Bildirimler açıldı ✓");
+  }catch(er){if(loud===true)toast("Cihaz kaydedilemedi ("+(er.code||er.message)+")")}
+}
+async function notifOn(){
+  try{
+    if(!fcmReady())return toast("Bildirim kurulumu henüz tamamlanmadı.");
+    if(!(await firebase.messaging.isSupported()))return toast("Bu cihaz bildirimi desteklemiyor.");
+    var p=await Notification.requestPermission();
+    if(p!="granted"){render();return toast("Bildirim izni verilmedi.")}
+    await notifSync(true);render();
+  }catch(er){toast("Bildirim açılamadı ("+(er.code||er.message)+")")}
+}
 function backupCard(){return '<div class="card"><h2>Yedekleme</h2><p class="mut">Tüm öğrenci, seans, ödeme ve takvim verilerini tek dosya olarak indirebilirsin. Geri yükleme mevcut tüm kayıtların yerine geçer.</p><button class="btn s" data-a="backup">Yedeği indir</button> <button class="btn g s" data-a="pick">Yedekten geri yükle</button><input id="rf" type="file" accept=".json,application/json" class="hide"></div>'}
 function restore(f){if(!f)return;var r=new FileReader();r.onload=function(){try{var d=JSON.parse(r.result);if(!d||!Array.isArray(d.students))throw 0;d.sessions=d.sessions||[];d.payments=d.payments||[];d.plans=d.plans||[];d.exc=d.exc||[];S=d;sel=null;save();render();status("Yedek geri yüklendi ✓")}catch(e){alert("Bu dosya geçerli bir yedek değil.")}};r.readAsText(f)}
 function sres(ss){var q=lc(Q.trim());if(!q)return sessionList(ss,false);var r=ss.filter(function(x){return lc(x.notes).indexOf(q)>=0});if(!r.length)return '<p class="mut">Sonuç bulunamadı.</p>';return '<p class="mut">'+r.length+' sonuç</p>'+r.sort(function(a,b){return a.date<b.date?1:-1}).map(function(x){if(ED==x.id)return editSes(x);return '<div class="card"><div class="row"><b>'+fd(x.date)+'</b><span><button class="btn g s" data-a="edit" data-id="'+x.id+'">Düzenle</button> <button class="btn g s" data-a="delSes" data-id="'+x.id+'">Sil</button></span></div><div class="notes">'+snip(x.notes,q)+'</div></div>'}).join("")}
@@ -357,12 +393,15 @@ document.addEventListener("click",async function(e){
   else if(a=="reset"){doReset();return}
   else if(a=="logout"){fbAuth.signOut();return}
   else if(a=="addStu"){var n=$("sn").value.trim();if(!n)return;S.students.push({id:uidn(),name:n,fee:+$("sf").value||0,note:""})}
-  else if(a=="open"){sel=id;SLO=false}
+  else if(a=="open"){sel=id;SLO=false;STO=false;SESO=false}
+  else if(a=="togSet"){STO=!STO;render();return}
+  else if(a=="togHid"){SHP=!SHP;render();return}
+  else if(a=="notifOn"){notifOn();return}
   else if(a=="back"){sel=null;PRE=null}
   else if(a=="rng"){setRange(b.dataset.r);render();return}
   else if(a=="saveNote"){var st=S.students.find(function(x){return x.id==sel});st.note=$("gn").value;var nn=$("en").value.trim();if(nn)st.name=nn;status("Kaydedildi ✓")}
   else if(a=="delStu"){if(!ask("s"+sel,b))return;S.sessions=S.sessions.filter(function(x){return x.studentId!=sel});S.payments=S.payments.filter(function(x){return x.studentId!=sel});S.plans=S.plans.filter(function(x){return x.studentId!=sel});S.exc=S.exc.filter(function(x){return x.studentId!=sel});S.students=S.students.filter(function(x){return x.id!=sel});sel=null}
-  else if(a=="addSes"){var tx=$("sx").value.trim();if(!tx)return alert("Seans notu boş olamaz.");S.sessions.push({id:uidn(),studentId:$("ss").value,date:$("sd").value||today(),notes:tx,fee:+$("sfee").value||0});if(PRE){S.plans=S.plans.filter(function(q){return q.id!=PRE.id});PRE=null}}
+  else if(a=="addSes"){var tx=$("sx").value.trim();if(!tx)return alert("Seans notu boş olamaz.");S.sessions.push({id:uidn(),studentId:$("ss").value,date:$("sd").value||today(),notes:tx,fee:+$("sfee").value||0});if(PRE){S.plans=S.plans.filter(function(q){return q.id!=PRE.id});PRE=null}SESO=false}
   else if(a=="addPay"){var am=+$("pa").value;if(!am)return alert("Tutar gir.");S.payments.push({id:uidn(),studentId:$("ps").value,date:$("pd").value||today(),amount:am,note:$("pn").value.trim()})}
   else if(a=="delSes"){if(!ask("q"+id,b))return;S.sessions=S.sessions.filter(function(q){return q.id!=id})}
   else if(a=="delPay"){if(!ask("p"+id,b))return;S.payments=S.payments.filter(function(q){return q.id!=id})}

@@ -1,0 +1,32 @@
+name: Koç Takip bildirimleri
+
+on:
+  schedule:
+    # Türkiye saati = UTC+3. GitHub zamanlanmış görevleri birkaç dakika gecikebilir.
+    - cron: "55 19 * * *"   # yaklaşık 23:00, yarının programı
+    - cron: "55 17 * * *"   # yaklaşık 21:00, seans notu hatırlatması
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Hangi bildirim?"
+        type: choice
+        default: test
+        options: [test, tomorrow, notes]
+
+jobs:
+  bildir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Paketleri kur
+        working-directory: scripts
+        run: npm install --no-audit --no-fund
+      - name: Bildirimi gönder
+        working-directory: scripts
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          MODE: ${{ github.event.inputs.mode || (github.event.schedule == '55 19 * * *' && 'tomorrow' || 'notes') }}
+        run: node bildirim.js
