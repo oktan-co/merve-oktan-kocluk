@@ -4,13 +4,14 @@
 <meta charset="utf-8">
 <meta name="color-scheme" content="light">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Koç Takip</title>
+<title>KoçNot</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Koç Takip">
+<meta name="apple-mobile-web-app-title" content="KoçNot">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#3d6b73">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
 <script>(function(){var TC={"petrol":"#3d6b73","gul":"#a35d6a","lavanta":"#6b5b95","adacayi":"#5f7f5a","lacivert":"#2f4a7a","kum":"#8a6a4a","gece":"#14181d","gece-mavi":"#12161f","gece-mor":"#17141f","gece-yesil":"#121a16","gece-gul":"#1c1417"};window.THEME_COLORS=TC;var t="petrol";try{t=localStorage.getItem("koc-theme")||"petrol"}catch(e){}if(!TC[t])t="petrol";document.documentElement.setAttribute("data-th",t);var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content",TC[t])})()</script>
 <style>
 :root{--bg:#f5f7f8;--card:#ffffff;--tx:#1f2a2e;--mut:#66767c;--ac:#3d6b73;--ac2:#5f9ea0;--acb:#e4eff0;--bd:#dbe3e5;--warn:#b5541f;--warnb:#fbece3;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
@@ -52,14 +53,15 @@ label{font-size:13px;color:var(--mut)}
 .notes{white-space:pre-wrap;margin:6px 0}
 .tw{overflow-x:auto}
 .hide{display:none}.lg{max-width:360px;margin:7vh auto 0;background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:30px 24px 26px;text-align:center;box-shadow:0 10px 36px color-mix(in srgb,var(--ac) 22%,transparent)}.lg label{display:block;text-align:left}.lg input{text-align:left;padding:12px}.lgi{font-size:48px;line-height:1;margin-bottom:6px}.lgt{margin:0 0 4px;font-size:24px}@keyframes lgup{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:none}}@keyframes lgpop{0%{opacity:0;transform:scale(.3) rotate(-14deg)}60%{opacity:1;transform:scale(1.18) rotate(5deg)}100%{opacity:1;transform:none}}@keyframes lgglow{0%,100%{box-shadow:0 10px 36px color-mix(in srgb,var(--ac) 22%,transparent)}50%{box-shadow:0 12px 44px color-mix(in srgb,var(--ac2) 36%,transparent)}}.lg{animation:lgup .65s cubic-bezier(.2,.8,.2,1) both,lgglow 4s 1s ease-in-out infinite}.lgi{animation:lgpop .9s .15s cubic-bezier(.2,.8,.2,1) both}.lg>*:not(.lgi){animation:lgup .55s cubic-bezier(.2,.8,.2,1) both}.lg>*:nth-child(2){animation-delay:.3s}.lg>*:nth-child(3){animation-delay:.38s}.lg>*:nth-child(4){animation-delay:.46s}.lg>*:nth-child(5){animation-delay:.54s}.lg>*:nth-child(6){animation-delay:.62s}.lg>*:nth-child(7){animation-delay:.7s}.lg>*:nth-child(8){animation-delay:.78s}@media (prefers-reduced-motion:reduce){.lg,.lg>*{animation:none!important}}#splash{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:var(--bg)}#sp-in{text-align:center}.spi{font-size:96px;line-height:1;animation:lgpop .9s .1s cubic-bezier(.2,.8,.2,1) both}.spt{font-size:30px;font-weight:700;margin-top:14px;animation:lgup .6s .4s cubic-bezier(.2,.8,.2,1) both}@media (prefers-reduced-motion:reduce){.spi,.spt{animation:none!important}}.lgb{width:100%;padding:13px;margin-top:8px;font-size:16px;background:linear-gradient(135deg,var(--ac),var(--ac2))}.ttl{font-size:20px;font-weight:700;border:0;border-bottom:1px dashed var(--bd);border-radius:0;background:transparent;padding:4px 0;margin:0 0 2px}mark{background:var(--acb);color:var(--tx);padding:0 2px;border-radius:3px}.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin-bottom:10px}.ch{text-align:center;font-size:12px;color:var(--mut);padding:4px 0}.cd{min-height:66px;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:4px;cursor:pointer;overflow:hidden;display:flex;flex-direction:column;gap:2px}.cd span{font-size:13px;font-weight:600}.cd small{font-size:10px;background:var(--acb);color:var(--ac);border-radius:4px;padding:0 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cd.td span{color:#fff;background:var(--ac);border-radius:99px;width:22px;height:22px;display:flex;align-items:center;justify-content:center}.cd.sel{outline:2px solid var(--ac)}.fl{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:10px}.fl>div{flex:1;min-width:130px}.fl input{margin-bottom:0}
+.lgo{width:1em;height:1em;display:block}.hd h1{display:flex;align-items:center;gap:8px}.hd h1 .lgo{flex:none}.lgi .lgo{margin:0 auto}
 #st{font-size:12px;color:var(--mut);margin-top:12px;text-align:center}
 </style>
 </head>
 <body>
-<div id="splash"><div id="sp-in"><div class="spi">📒</div><div class="spt">Koç Takip</div></div></div>
-<script>window.T0E=Date.now()</script>
+<div id="splash"><div id="sp-in"><div class="spi"><svg class="lgo" viewBox="0 0 96 96" aria-hidden="true"><rect width="96" height="96" rx="22" fill="#2b4f56"/><rect x="20" y="28" width="44" height="54" rx="8" fill="#fff"/><rect x="29" y="44" width="26" height="4.5" rx="2.25" fill="#2b4f56"/><rect x="29" y="56" width="20" height="4.5" rx="2.25" fill="#2b4f56"/><rect x="29" y="68" width="14" height="4.5" rx="2.25" fill="#2b4f56"/><path d="M68 14L72.5 25.5L84 30L72.5 34.5L68 46L63.5 34.5L52 30L63.5 25.5Z" fill="#e0a458"/></svg></div><div class="spt">KoçNot</div></div></div>
+<script>window.T0E=Date.now();var LOGO='<svg class="lgo" viewBox="0 0 96 96" aria-hidden="true"><rect width="96" height="96" rx="22" fill="#2b4f56"/><rect x="20" y="28" width="44" height="54" rx="8" fill="#fff"/><rect x="29" y="44" width="26" height="4.5" rx="2.25" fill="#2b4f56"/><rect x="29" y="56" width="20" height="4.5" rx="2.25" fill="#2b4f56"/><rect x="29" y="68" width="14" height="4.5" rx="2.25" fill="#2b4f56"/><path d="M68 14L72.5 25.5L84 30L72.5 34.5L68 46L63.5 34.5L52 30L63.5 25.5Z" fill="#e0a458"/></svg>'</script>
 <div class="w">
-<div class="hd"><h1>📒 Koç Takip</h1><button class="btn g s" id="setbtn" style="display:none" data-a="settings">⚙ Ayarlar</button></div>
+<div class="hd"><h1><svg class="lgo" viewBox="0 0 96 96" aria-hidden="true"><rect width="96" height="96" rx="22" fill="#2b4f56"/><rect x="20" y="28" width="44" height="54" rx="8" fill="#fff"/><rect x="29" y="44" width="26" height="4.5" rx="2.25" fill="#2b4f56"/><rect x="29" y="56" width="20" height="4.5" rx="2.25" fill="#2b4f56"/><rect x="29" y="68" width="14" height="4.5" rx="2.25" fill="#2b4f56"/><path d="M68 14L72.5 25.5L84 30L72.5 34.5L68 46L63.5 34.5L52 30L63.5 25.5Z" fill="#e0a458"/></svg>KoçNot</h1><button class="btn g s" id="setbtn" style="display:none" data-a="settings">⚙ Ayarlar</button></div>
 <div class="tabs" id="tabs"></div>
 <div id="app"></div>
 <div id="st"></div>
@@ -110,7 +112,7 @@ function hideSplash(){var sp=document.getElementById("splash");if(!sp||sp.datase
     m.onfinish=done;
   },wait)}
 function showMsg(m){$("tabs").innerHTML="";$("app").innerHTML='<div class="card">'+m+'</div>';hideSplash()}
-function showLogin(){$("tabs").innerHTML="";status("");var h=document.querySelector(".hd");if(h)h.style.display="none";$("app").innerHTML='<div class="lg"><div class="lgi">📒</div><h2 class="lgt">Koç Takip</h2><p class="mut" style="margin:0 0 20px">Devam etmek için giriş yap</p><label>Kullanıcı adı</label><input id="le" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"><label>Şifre</label><input id="lp" type="password" autocomplete="current-password"><button class="btn lgb" data-a="login">Giriş yap</button></div>';hideSplash()}
+function showLogin(){$("tabs").innerHTML="";status("");var h=document.querySelector(".hd");if(h)h.style.display="none";$("app").innerHTML='<div class="lg"><div class="lgi">'+LOGO+'</div><h2 class="lgt">KoçNot</h2><p class="mut" style="margin:0 0 20px">Devam etmek için giriş yap</p><label>Kullanıcı adı</label><input id="le" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"><label>Şifre</label><input id="lp" type="password" autocomplete="current-password"><button class="btn lgb" data-a="login">Giriş yap</button></div>';hideSplash()}
 function authMsg(er){var c=er&&er.code||"";if(/invalid-credential|user-not-found|wrong-password|invalid-email/.test(c))return"Kullanıcı adı veya şifre hatalı.";if(c=="auth/too-many-requests")return"Çok fazla deneme yapıldı. Biraz bekleyip tekrar dene.";if(c=="auth/network-request-failed")return"İnternet bağlantısı yok.";return"Giriş yapılamadı ("+c+")"}
 function uname(v){v=String(v||"").trim().toLowerCase();return v.indexOf("@")>=0?v:v+"@kocluk.com"}
 async function doLogin(){var e=uname($("le").value),p=$("lp").value;if(!$("le").value.trim()||!p)return toast("Kullanıcı adı ve şifre gir.");try{await fbAuth.signInWithEmailAndPassword(e,p)}catch(er){toast(authMsg(er))}}
@@ -274,7 +276,7 @@ function setTheme(k){document.documentElement.setAttribute("data-th",k);try{loca
 function themeCard(){var c=curTheme();var cn=(THEMES.find(function(t){return t[0]==c})||THEMES[0])[1];return '<details class="card"><summary style="cursor:pointer;font-weight:600">Tema <span class="mut" style="font-weight:400">('+cn+')</span></summary><div style="height:10px"></div><p class="mut">Seçtiğin tema bu cihazda hatırlanır.</p><div class="thg">'+THEMES.map(function(t){return '<button class="thb'+(t[0]==c?' on':'')+'" data-a="theme" data-d="'+t[0]+'"><i style="background:linear-gradient(135deg,'+t[2]+' 50%,'+t[3]+' 50%)"></i>'+t[1]+(t[0]==c?' ✓':'')+'</button>'}).join("")+'</div></details>'}
 function notifCard(){var p=("Notification" in window)?Notification.permission:"yok",t;
   if(p=="granted")t="Bu cihazda bildirimler açık ✓ Seanstan bir gün önce 23:00'te yarının programı, seans günü 21:00'de not hatırlatması gelir.";
-  else if(p=="denied")t="Bildirim izni kapalı. Telefon ya da tarayıcı ayarlarından Koç Takip için bildirime izin ver.";
+  else if(p=="denied")t="Bildirim izni kapalı. Telefon ya da tarayıcı ayarlarından KoçNot için bildirime izin ver.";
   else if(p=="yok")t="Bu tarayıcı bildirimi desteklemiyor. iPhone'da önce uygulamayı Ana ekrana ekle, sonra Ana ekran simgesinden aç.";
   else t="Seanstan bir gün önce 23:00'te yarının programı, seans günü 21:00'de not hatırlatması gelir.";
   return '<div class="card"><h2>Bildirimler</h2><p class="mut">'+t+'</p>'+(p=="yok"||p=="denied"?'':'<button class="btn s" data-a="notifOn">'+(p=="granted"?'Bu cihazı yeniden kaydet':'Bildirimleri aç')+'</button>')+'</div>'}

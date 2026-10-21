@@ -1,4 +1,4 @@
-// Koç Takip bildirim göndericisi. GitHub Actions tarafından çalıştırılır.
+// KoçNot bildirim göndericisi. GitHub Actions tarafından çalıştırılır.
 // MODE: tomorrow (yarının programı) | notes (not hatırlatması) | test
 const admin = require("firebase-admin");
 
@@ -80,7 +80,7 @@ async function send(title, body, tag) {
 (async () => {
   const today = istanbulToday();
   if (MODE === "test") {
-    await send("Koç Takip", "Test bildirimi: bildirimler bu cihazda çalışıyor.", "test");
+    await send("KoçNot", "Test bildirimi: bildirimler bu cihazda çalışıyor.", "test");
     return;
   }
   const S = await load();

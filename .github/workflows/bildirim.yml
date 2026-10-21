@@ -1,4 +1,4 @@
-name: Koç Takip bildirimleri
+name: KoçNot bildirimleri
 
 on:
   schedule:

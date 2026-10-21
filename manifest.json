@@ -1,6 +1,6 @@
 {
-  "name": "Koç Takip",
-  "short_name": "Koç Takip",
+  "name": "KoçNot",
+  "short_name": "KoçNot",
   "lang": "tr",
   "start_url": "./",
   "scope": "./",
@@ -8,8 +8,23 @@
   "background_color": "#f5f7f8",
   "theme_color": "#3d6b73",
   "icons": [
-    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
-    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
-    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
