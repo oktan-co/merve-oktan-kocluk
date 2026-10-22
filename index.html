@@ -188,12 +188,14 @@ function studentDetail(){
   if(STO)h+='<div class="card" style="margin-top:10px"><h2>Öğrenci ayarları</h2><label>Ad soyad</label><input id="en" value="'+esc(s.name)+'">'+slotsHtml(s)+'<details style="margin:4px 0 10px"><summary style="cursor:pointer;padding:6px 0;font-weight:600">Öğrenci notu'+(s.note?' •':'')+'</summary><textarea id="gn">'+esc(s.note||"")+'</textarea></details><div class="row"><button class="btn s" data-a="saveNote">Kaydet</button><button class="btn g s" data-a="toggleAct">'+(s.active===false?"Aktif yap":"Pasif yap")+'</button> <button class="btn g s" data-a="delStu">Öğrenciyi sil</button></div></div>';
   h+='<h2 style="margin:12px 0 6px;font-size:20px">'+esc(s.name)+'</h2><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"><span class="pill">'+ss.length+' seans</span>'+balPill(b)+(s.active===false?'<span class="pill w">Pasif</span>':'')+'</div>';
   h+='<details id="sesd" class="card"'+((SESO||PRE)?' open':'')+'><summary style="cursor:pointer;font-weight:600">+ Seans ekle</summary><div style="height:10px"></div>'+sessionForm(s,true)+'</details>';
+  h+=payForm(s);
   h+='<h2>Seans geçmişi</h2><input id="q" type="search" placeholder="🔍 Bu öğrencinin seans notlarında ara..." value="'+esc(Q)+'"><div id="sres">'+sres(ss)+'</div>';
   return h;
 }
 function payForm(s){
-  var sel2=s?'<input type="hidden" id="ps" value="'+s.id+'">':'<label>Öğrenci</label><select id="ps">'+S.students.map(function(x){return '<option value="'+x.id+'">'+esc(x.name)+'</option>'}).join("")+'</select>';
+  var sel2=s?'<input type="hidden" id="ps" value="'+s.id+'">':(function(){var L=S.students.filter(function(x){return bal(x.id)!==0});return L.length?'<label>Öğrenci</label><select id="ps">'+L.map(function(x){return '<option value="'+x.id+'">'+esc(x.name)+(bal(x.id)>0?' · kalan '+tl(bal(x.id)):' · fazla ödeme '+tl(-bal(x.id)))+'</option>'}).join("")+'</select>':'NONE'})();
   if(!S.students.length)return"";
+  if(sel2==="NONE")return '<div class="card"><p class="mut" style="margin:0">Bakiyesi olan öğrenci yok. Peşin ödeme için öğrencinin sayfasından "Ödeme al" kullan.</p></div>';
   return '<details class="card"><summary style="cursor:pointer;font-weight:600">+ Ödeme al</summary><div style="height:10px"></div>'+sel2+'<div class="fl"><div><label>Tutar (₺)</label><input id="pa" type="number" inputmode="decimal"></div><div><label>Tarih</label><input id="pd" type="date" value="'+today()+'"></div></div><label>Not (nakit, havale...)</label><input id="pn"><button class="btn" data-a="addPay">Ödemeyi kaydet</button></details>';
 }
 function estMonth(ym){var y=+ym.slice(0,4),m=+ym.slice(5)-1,dim=new Date(y,m+1,0).getDate(),t0=today(),done=0,plan=0,pc=0,d;
